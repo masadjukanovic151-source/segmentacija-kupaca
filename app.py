@@ -9,9 +9,7 @@ from rfm import create_rfm
 from clustering import run_clustering
 from evaluation import evaluate_model
 
-# =========================
-# SETUP
-# =========================
+
 st.set_page_config(
     page_title="Segmentacija kupaca",
     layout="wide",
@@ -25,9 +23,7 @@ page = st.sidebar.selectbox(
 
 uploaded_file = st.sidebar.file_uploader("📂 Učitaj CSV / Excel", type=["csv", "xlsx"])
 
-# =========================
-# FUNKCIJE
-# =========================
+
 def predict_segment(rec, freq, mon):
     if rec <= 90 and freq >= 10 and mon >= 1000:
         return "VIP kupac"
@@ -42,9 +38,7 @@ def calculate_clv(rfm):
 def calculate_roi(clv, cost=50):
     return (clv - cost) / cost * 100
 
-# =========================
-# LOAD DATA
-# =========================
+
 if uploaded_file:
 
     df = pd.read_csv(uploaded_file) if uploaded_file.name.endswith("csv") else pd.read_excel(uploaded_file)
@@ -52,7 +46,7 @@ if uploaded_file:
 
     rfm = create_rfm(df)
 
-    # CLUSTERING (OBAVEZNO PRIJE UI PREVOĐENJA)
+    
     rfm, scaled = run_clustering(rfm)
 
     rfm["HDBSCAN"] = rfm["HDBSCAN"].astype(int)
@@ -60,13 +54,10 @@ if uploaded_file:
 
     score = evaluate_model(scaled, rfm["HDBSCAN"])
 
-    # CLV
+   
     rfm["CLV"] = calculate_clv(rfm)
     rfm["ROI"] = calculate_roi(rfm["CLV"])
-
-    # =========================
-    # PREVIEW (UI COPY)
-    # =========================
+=
     rfm_display = rfm.rename(columns={
         "Recency": "Dani od posljednje kupovine",
         "Frequency": "Koliko često kupuje",
@@ -81,9 +72,7 @@ if uploaded_file:
         "CustomerID": "ID kupca"
     })
 
-    # =========================
-    # PREGLED
-    # =========================
+  
     if page == "📊 Pregled":
 
         st.title("📊 Pregled kupaca")
@@ -96,9 +85,7 @@ if uploaded_file:
         st.dataframe(rfm_display.head())
         st.dataframe(df_display.head())
 
-    # =========================
-    # HDBSCAN
-    # =========================
+ 
     elif page == "🤖 HDBSCAN":
 
         st.title("🤖 HDBSCAN segmentacija")
@@ -122,9 +109,7 @@ if uploaded_file:
         - -1 → outlajeri  
         """)
 
-    # =========================
-    # GMM
-    # =========================
+   
     elif page == "📈 GMM":
 
         st.title("📈 GMM segmentacija")
@@ -147,9 +132,7 @@ if uploaded_file:
         - 2 → povremeni  
         """)
 
-    # =========================
-    # CLV & ROI
-    # =========================
+  
     elif page == "💰 CLV & ROI":
 
         st.title("💰 CLV i ROI analiza")
@@ -159,16 +142,13 @@ if uploaded_file:
 
         st.dataframe(rfm[["CLV", "ROI"]].head())
 
-    # =========================
-    # COHORT (FIXED)
-    # =========================
+ 
     elif page == "📅 Cohort":
 
         st.title("📅 Cohort analiza")
 
         df["InvoiceDate"] = pd.to_datetime(df["InvoiceDate"])
 
-        # FIX: Period -> STRING (rješava grešku)
         df["Month"] = df["InvoiceDate"].dt.to_period("M").astype(str)
 
         cohort = df.groupby("Month")["CustomerID"].nunique().reset_index()
@@ -187,9 +167,7 @@ if uploaded_file:
 
         st.plotly_chart(fig, use_container_width=True)
 
-    # =========================
-    # WHAT IF
-    # =========================
+    
     elif page == "🎯 What-if":
 
         st.title("🎯 Simulacija kupca")
