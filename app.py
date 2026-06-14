@@ -57,7 +57,7 @@ if uploaded_file:
    
     rfm["CLV"] = calculate_clv(rfm)
     rfm["ROI"] = calculate_roi(rfm["CLV"])
-=
+
     rfm_display = rfm.rename(columns={
         "Recency": "Dani od posljednje kupovine",
         "Frequency": "Koliko često kupuje",
